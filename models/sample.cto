@@ -1,0 +1,89 @@
+namespace org.example.insurance
+
+enum ClaimStatus {
+  o APPLIED
+  o APPROVED_POLICE
+  o APPROVED
+  o REPAIRED
+  o CLOSED
+  o REJECTED
+}
+
+abstract participant Person identified by id {
+  o String id
+  o String name
+  o String lastName optional
+}
+
+participant VehicleOwner extends Person {
+  o String mailId
+  o String phone
+}
+
+participant Police extends Person {
+	o String stationID
+	o String stationName
+}
+
+participant Insurancer extends Person {
+	o String companyName
+}
+
+
+asset ClaimApplication identified by id {
+	o String id
+	o String type
+	o String firReference
+	o String description
+	o String closeReason optional
+	o ClaimStatus status
+    --> Person[] approval
+    --> VehicleOwner applicant
+}
+
+// TRANSACTIONS + EVENTS
+
+transaction ClaimInsurance {
+	o String id
+	o String type
+	o String description
+	o String firReference
+	o ClaimStatus status
+    --> Person[] approval
+    --> VehicleOwner applicant
+}
+
+event ClaimInsuranceEvent {
+	--> ClaimApplication claimApplication
+}
+
+transaction Approve {
+	--> ClaimApplication claimApplication
+	--> Person approvingParty
+	o String firReference
+}
+
+event ApproveEvent {
+	--> ClaimApplication claimApplication
+	--> Person approvingParty
+}
+
+transaction Reject {
+	--> ClaimApplication claimApplication
+	o String closeReason
+}
+
+event RejectEvent {
+	--> ClaimApplication claimApplication
+	o String closeReason
+}
+
+transaction Close {
+	--> ClaimApplication claimApplication
+	o String closeReason
+}
+
+event CloseEvent {
+	--> ClaimApplication claimApplication
+	o String closeReason
+}
